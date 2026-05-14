@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import ReactMarkdown from 'react-markdown';
 import * as api from '../services/api';
 
 const featureConfig = {
@@ -906,11 +905,141 @@ const featureConfig = {
   },
 };
 
+// ── Structured AI Result Card ──────────────────────────────────────────────
+const riskColors = { low: '#4ade80', medium: '#facc15', high: '#fb923c', critical: '#f87171', unknown: '#94a3b8' };
+
+function AIResultCard({ analysis }) {
+  if (!analysis) return null;
+
+  // If it's a string (shouldn't happen with new backend, but be safe)
+  if (typeof analysis === 'string') {
+    return <div style={{ padding: 12, color: '#e0e6ed', lineHeight: 1.6 }}>{analysis}</div>;
+  }
+
+  const risk = analysis.riskLevel || 'unknown';
+  const riskColor = riskColors[risk] || riskColors.unknown;
+  const score = analysis.score;
+
+  return (
+    <div>
+      {/* Summary + Score row */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, marginBottom: 16 }}>
+        <div>
+          <div style={{ color: '#94a3b8', fontSize: 12, marginBottom: 4 }}>Summary</div>
+          <p style={{ margin: 0, lineHeight: 1.6, color: '#e0e6ed' }}>{analysis.summary || 'No summary available.'}</p>
+        </div>
+        <div style={{ textAlign: 'center', minWidth: 80 }}>
+          {score != null && (
+            <div>
+              <div style={{ fontSize: 32, fontWeight: 700, color: score >= 70 ? '#4ade80' : score >= 40 ? '#facc15' : '#f87171' }}>
+                {Math.round(score)}
+              </div>
+              <div style={{ fontSize: 11, color: '#94a3b8' }}>/ 100</div>
+            </div>
+          )}
+          <div style={{
+            marginTop: 8,
+            padding: '2px 10px',
+            borderRadius: 12,
+            background: `${riskColor}22`,
+            color: riskColor,
+            fontSize: 12,
+            fontWeight: 600,
+            border: `1px solid ${riskColor}44`,
+            textTransform: 'uppercase',
+          }}>
+            {risk}
+          </div>
+        </div>
+      </div>
+
+      {/* Recommendations */}
+      {analysis.recommendations?.length > 0 && (
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ color: '#38bdf8', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+            <i className="fas fa-check-circle" style={{ marginRight: 6 }}></i>Recommendations
+          </div>
+          <ul style={{ margin: 0, paddingLeft: 20, color: '#cbd5e1', fontSize: 13, lineHeight: 1.8 }}>
+            {analysis.recommendations.map((r, i) => <li key={i}>{r}</li>)}
+          </ul>
+        </div>
+      )}
+
+      {/* Flags */}
+      {analysis.flags?.length > 0 && (
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ color: '#fb923c', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+            <i className="fas fa-flag" style={{ marginRight: 6 }}></i>Flags & Issues
+          </div>
+          <ul style={{ margin: 0, paddingLeft: 20, color: '#fca5a5', fontSize: 13, lineHeight: 1.8 }}>
+            {analysis.flags.map((f, i) => <li key={i}>{f}</li>)}
+          </ul>
+        </div>
+      )}
+
+      {/* Details */}
+      {analysis.details && Object.keys(analysis.details).length > 0 && (
+        <div>
+          <div style={{ color: '#94a3b8', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+            <i className="fas fa-info-circle" style={{ marginRight: 6 }}></i>Details
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+            {Object.entries(analysis.details).map(([k, v]) => (
+              <div key={k} style={{ padding: 8, background: 'rgba(255,255,255,0.03)', borderRadius: 6 }}>
+                <div style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>
+                  {k.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}
+                </div>
+                <div style={{ fontSize: 13, color: '#cbd5e1' }}>{String(v)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Error case */}
+      {analysis.error && (
+        <div style={{ color: '#f87171', padding: 8 }}>Error: {analysis.error}</div>
+      )}
+    </div>
+  );
+}
+
+// ── Pagination Control ─────────────────────────────────────────────────────
+function Pagination({ pagination, onPageChange }) {
+  if (!pagination || pagination.totalPages <= 1) return null;
+  const { page, totalPages, total } = pagination;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', color: '#94a3b8', fontSize: 13 }}>
+      <span>{total} records total</span>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+        <button
+          onClick={() => onPageChange(page - 1)}
+          disabled={page <= 1}
+          style={{ padding: '4px 12px', background: page <= 1 ? '#1e293b' : '#334155', color: '#e0e6ed', border: 'none', borderRadius: 4, cursor: page <= 1 ? 'default' : 'pointer', opacity: page <= 1 ? 0.5 : 1 }}
+        >
+          Prev
+        </button>
+        <span style={{ padding: '0 8px' }}>Page {page} of {totalPages}</span>
+        <button
+          onClick={() => onPageChange(page + 1)}
+          disabled={page >= totalPages}
+          style={{ padding: '4px 12px', background: page >= totalPages ? '#1e293b' : '#334155', color: '#e0e6ed', border: 'none', borderRadius: 4, cursor: page >= totalPages ? 'default' : 'pointer', opacity: page >= totalPages ? 0.5 : 1 }}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Main FeaturePage Component ─────────────────────────────────────────────
 function FeaturePage({ feature }) {
   const config = featureConfig[feature];
   const service = api[config.service];
 
   const [items, setItems] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -919,11 +1048,21 @@ function FeaturePage({ feature }) {
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
 
-  const loadItems = useCallback(async () => {
+  const loadItems = useCallback(async (page = 1) => {
     try {
       setLoading(true);
-      const res = await service.getAll();
-      setItems(res.data);
+      const res = await service.getAll(page, 20);
+      // Handle both paginated { data, pagination } and legacy flat array
+      if (res.data && res.data.data && res.data.pagination) {
+        setItems(res.data.data);
+        setPagination(res.data.pagination);
+      } else if (Array.isArray(res.data)) {
+        setItems(res.data);
+        setPagination(null);
+      } else {
+        setItems([]);
+        setPagination(null);
+      }
     } catch (err) {
       console.error('Error loading:', err);
     } finally {
@@ -932,11 +1071,17 @@ function FeaturePage({ feature }) {
   }, [service]);
 
   useEffect(() => {
-    loadItems();
+    setCurrentPage(1);
+    loadItems(1);
     setSelectedItem(null);
     setShowForm(false);
     setAiAnalysis(null);
   }, [feature, loadItems]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    loadItems(page);
+  };
 
   const handleRowClick = (item) => {
     setSelectedItem(item);
@@ -948,7 +1093,7 @@ function FeaturePage({ feature }) {
     try {
       await service.delete(id);
       setSelectedItem(null);
-      loadItems();
+      loadItems(currentPage);
     } catch (err) {
       alert('Error deleting item: ' + (err.response?.data?.error || err.message));
     }
@@ -980,7 +1125,6 @@ function FeaturePage({ feature }) {
     e.preventDefault();
     try {
       const submitData = { ...formData };
-      // Convert types
       config.fields.forEach(f => {
         if (f.type === 'number' && submitData[f.name] !== '') {
           submitData[f.name] = Number(submitData[f.name]);
@@ -1000,7 +1144,7 @@ function FeaturePage({ feature }) {
         await service.create(submitData);
       }
       setShowForm(false);
-      loadItems();
+      loadItems(currentPage);
     } catch (err) {
       alert('Error saving: ' + (err.response?.data?.error || err.message));
     }
@@ -1013,7 +1157,7 @@ function FeaturePage({ feature }) {
       const res = await service.analyze(item.id);
       setAiAnalysis(res.data.analysis);
     } catch (err) {
-      setAiAnalysis('Error: ' + (err.response?.data?.error || err.message));
+      setAiAnalysis({ error: err.response?.data?.error || err.message });
     } finally {
       setAiLoading(false);
     }
@@ -1081,6 +1225,7 @@ function FeaturePage({ feature }) {
             )}
           </tbody>
         </table>
+        <Pagination pagination={pagination} onPageChange={handlePageChange} />
       </div>
 
       {/* Detail Modal */}
@@ -1120,18 +1265,18 @@ function FeaturePage({ feature }) {
               </button>
               {config.hasAI && (
                 <button className="btn-ai" onClick={() => handleAIAnalysis(selectedItem)} disabled={aiLoading}>
-                  <i className="fas fa-brain"></i> AI Analysis
+                  <i className="fas fa-brain"></i> {aiLoading ? 'Analyzing...' : 'AI Analysis'}
                 </button>
               )}
             </div>
 
-            {/* AI Analysis Result */}
+            {/* AI Analysis Result — Structured Card */}
             {(aiLoading || aiAnalysis) && (
               <div className="ai-analysis-container">
                 <div className="ai-analysis-header">
                   <i className="fas fa-robot"></i>
                   <h3>AI Analysis</h3>
-                  <span className="ai-model">OpenRouter / Claude Haiku</span>
+                  <span className="ai-model">Claude 3.5 Sonnet</span>
                 </div>
                 {aiLoading ? (
                   <div className="ai-loading">
@@ -1140,7 +1285,7 @@ function FeaturePage({ feature }) {
                   </div>
                 ) : (
                   <div className="ai-analysis-body">
-                    <ReactMarkdown>{aiAnalysis}</ReactMarkdown>
+                    <AIResultCard analysis={aiAnalysis} />
                   </div>
                 )}
               </div>
