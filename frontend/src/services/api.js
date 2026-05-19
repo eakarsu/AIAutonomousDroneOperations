@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:4000/api';
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -19,7 +19,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      window.location.href = '/';
     }
     return Promise.reject(error);
   }
@@ -30,8 +30,12 @@ export const auth = {
   register: (data) => api.post('/auth/register', data),
 };
 
+/**
+ * Creates a service object for a CRUD endpoint.
+ * All getAll() calls now support pagination via ?page=N&limit=N.
+ */
 export const createService = (endpoint) => ({
-  getAll: () => api.get(`/${endpoint}`),
+  getAll: (page = 1, limit = 20) => api.get(`/${endpoint}?page=${page}&limit=${limit}`),
   getById: (id) => api.get(`/${endpoint}/${id}`),
   create: (data) => api.post(`/${endpoint}`, data),
   update: (id, data) => api.put(`/${endpoint}/${id}`, data),
@@ -78,6 +82,64 @@ export const groundStationService = createService('ground-stations');
 
 export const dashboardService = {
   getStats: () => api.get('/dashboard/stats'),
+};
+
+// ── Telemetry / real-time fleet tracking ─────────────────────────────────
+export const telemetryService = {
+  push: (droneId, point) => api.post(`/drones/${droneId}/telemetry`, point),
+  history: (droneId) => api.get(`/drones/${droneId}/telemetry/history`),
+};
+
+// ── Geofence enforcement check ───────────────────────────────────────────
+export const geofenceCheckService = {
+  check: (droneId, point) => api.post(`/drones/${droneId}/check-geofence`, point),
+};
+
+// ── Mission Logs (after-mission AI report generation) ────────────────────
+export const missionLogService = {
+  getAll: (page = 1, limit = 20) => api.get(`/mission-logs?page=${page}&limit=${limit}`),
+  getById: (id) => api.get(`/mission-logs/${id}`),
+  create: (data) => api.post('/mission-logs', data),
+};
+
+// ── AI Results history ────────────────────────────────────────────────────
+export const aiResultsService = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams({
+      page: params.page || 1,
+      limit: params.limit || 20,
+      ...(params.entityType && { entityType: params.entityType }),
+      ...(params.entityId && { entityId: params.entityId }),
+      ...(params.riskLevel && { riskLevel: params.riskLevel }),
+    }).toString();
+    return api.get(`/ai-results?${qs}`);
+  },
+  getById: (id) => api.get(`/ai-results/${id}`),
+};
+
+// ── Operational alerts ────────────────────────────────────────────────────
+export const alertsService = {
+  batteries: () => api.get('/alerts/batteries'),
+  lowStock: () => api.get('/alerts/low-stock'),
+  expiringLicenses: (days = 30) => api.get(`/alerts/expiring-licenses?days=${days}`),
+  summary: () => api.get('/alerts/summary'),
+};
+
+// ── AI streaming SSE for mission analysis ────────────────────────────────
+export const aiStream = {
+  missionStreamUrl: (missionId) => {
+    const token = localStorage.getItem('token');
+    return { url: `${API_BASE}/ai/analyze/stream?missionId=${missionId}`, token };
+  },
+};
+
+// ── Autonomous flight AI features ─────────────────────────────────────────
+export const aiAutonomyService = {
+  missionPlanner: (data) => api.post('/ai/mission-planner', data),
+  obstacleAvoidance: (data) => api.post('/ai/obstacle-avoidance', data),
+  swarmCoordination: (data) => api.post('/ai/swarm-coordination', data),
+  geofenceOptimize: (data) => api.post('/ai/geofence-optimize', data),
+  telemetryAnomaly: (data) => api.post('/ai/telemetry-anomaly', data),
 };
 
 export default api;

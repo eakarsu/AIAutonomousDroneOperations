@@ -4,6 +4,9 @@ import { dashboardService } from '../services/api';
 
 const featureCards = [
   { path: '/drones', icon: 'fas fa-helicopter', label: 'Fleet Management', desc: 'Monitor and manage your drone fleet in real-time', color: '#38bdf8', bg: 'bg-blue' },
+  { path: '/fleet-tracking', icon: 'fas fa-satellite-dish', label: 'Real-Time Tracking', desc: 'Live telemetry, position trails, geofence enforcement', color: '#22c55e', bg: 'bg-green' },
+  { path: '/mission-logs', icon: 'fas fa-clipboard-list', label: 'Mission Logs (AI)', desc: 'Auto-generated post-mission AI reports', color: '#a78bfa', bg: 'bg-purple' },
+  { path: '/ai-mission-stream', icon: 'fas fa-stream', label: 'AI Mission Stream', desc: 'Live SSE-streamed mission analysis', color: '#f472b6', bg: 'bg-pink' },
   { path: '/flight-plans', icon: 'fas fa-route', label: 'Flight Planning', desc: 'Plan, schedule, and optimize flight routes', color: '#818cf8', bg: 'bg-indigo' },
   { path: '/missions', icon: 'fas fa-crosshairs', label: 'Mission Control', desc: 'Real-time mission monitoring and management', color: '#4ade80', bg: 'bg-green' },
   { path: '/inspections', icon: 'fas fa-search-plus', label: 'Inspections', desc: 'Infrastructure, pipeline, and building inspections', color: '#fb923c', bg: 'bg-orange' },

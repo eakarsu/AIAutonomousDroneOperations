@@ -4,11 +4,16 @@ import { useNavigate, useLocation } from 'react-router-dom';
 const menuItems = [
   { section: 'Overview', items: [
     { path: '/', icon: 'fas fa-th-large', label: 'Dashboard' },
+    { path: '/custom-views', icon: 'fas fa-helicopter', label: 'Mission Views' },
   ]},
   { section: 'Operations', items: [
     { path: '/drones', icon: 'fas fa-helicopter', label: 'Fleet Management' },
+    { path: '/fleet-tracking', icon: 'fas fa-satellite-dish', label: 'Real-Time Tracking' },
     { path: '/flight-plans', icon: 'fas fa-route', label: 'Flight Planning' },
     { path: '/missions', icon: 'fas fa-crosshairs', label: 'Mission Control' },
+    { path: '/mission-logs', icon: 'fas fa-clipboard-list', label: 'Mission Logs (AI)' },
+    { path: '/ai-mission-stream', icon: 'fas fa-stream', label: 'AI Mission Stream' },
+    { path: '/ai-autonomy', icon: 'fas fa-robot', label: 'AI Autonomy Tools' },
     { path: '/routes', icon: 'fas fa-map-marked-alt', label: 'Route Optimization' },
     { path: '/geofences', icon: 'fas fa-draw-polygon', label: 'Geofences' },
     { path: '/landing-zones', icon: 'fas fa-map-pin', label: 'Landing Zones' },

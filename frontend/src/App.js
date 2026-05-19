@@ -3,6 +3,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import FeaturePage from './pages/FeaturePage';
+import FleetTracking from './pages/FleetTracking';
+import MissionLogs from './pages/MissionLogs';
+import AIMissionStream from './pages/AIMissionStream';
+import AIAutonomy from './pages/AIAutonomy';
+import Extensions from './pages/Extensions'; // Apply pass 5
+import CustomViewsPage from './pages/CustomViewsPage';
 import Sidebar from './components/Sidebar';
 import './styles/App.css';
 
@@ -44,6 +50,12 @@ function App() {
         <main className="main-content">
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/fleet-tracking" element={<FleetTracking />} />
+            <Route path="/mission-logs" element={<MissionLogs />} />
+            <Route path="/ai-mission-stream" element={<AIMissionStream />} />
+            <Route path="/ai-autonomy" element={<AIAutonomy />} />
+            <Route path="/extensions" element={<Extensions />} />
+            <Route path="/custom-views" element={<CustomViewsPage />} />
             <Route path="/drones" element={<FeaturePage feature="drones" />} />
             <Route path="/flight-plans" element={<FeaturePage feature="flight-plans" />} />
             <Route path="/missions" element={<FeaturePage feature="missions" />} />
