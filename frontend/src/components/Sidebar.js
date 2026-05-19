@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 const menuItems = [
   { section: 'Overview', items: [
     { path: '/', icon: 'fas fa-th-large', label: 'Dashboard' },
+    { path: '/custom-views', icon: 'fas fa-helicopter', label: 'Mission Views' },
   ]},
   { section: 'Operations', items: [
     { path: '/drones', icon: 'fas fa-helicopter', label: 'Fleet Management' },

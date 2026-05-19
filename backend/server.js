@@ -226,3 +226,6 @@ app.use('/api/gap-weather-integration-wind-rain-forecasts', require('./routes/ga
 app.use('/api/gap-captured-imagery-analysis-pipeline', require('./routes/gap_captured_imagery_analysis_pipeline'));
 app.use('/api/gap-notifications-subsystem', require('./routes/gap_notifications_subsystem'));
 app.use('/api/gap-outbound-webhooks', require('./routes/gap_outbound_webhooks'));
+
+// === Custom Views (4 synthesizing endpoints) ===
+app.use('/api/custom-views', require('./routes/customViews'));

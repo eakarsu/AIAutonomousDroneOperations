@@ -8,6 +8,7 @@ import MissionLogs from './pages/MissionLogs';
 import AIMissionStream from './pages/AIMissionStream';
 import AIAutonomy from './pages/AIAutonomy';
 import Extensions from './pages/Extensions'; // Apply pass 5
+import CustomViewsPage from './pages/CustomViewsPage';
 import Sidebar from './components/Sidebar';
 import './styles/App.css';
 
@@ -54,6 +55,7 @@ function App() {
             <Route path="/ai-mission-stream" element={<AIMissionStream />} />
             <Route path="/ai-autonomy" element={<AIAutonomy />} />
             <Route path="/extensions" element={<Extensions />} />
+            <Route path="/custom-views" element={<CustomViewsPage />} />
             <Route path="/drones" element={<FeaturePage feature="drones" />} />
             <Route path="/flight-plans" element={<FeaturePage feature="flight-plans" />} />
             <Route path="/missions" element={<FeaturePage feature="missions" />} />
