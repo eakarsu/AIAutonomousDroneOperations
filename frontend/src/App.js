@@ -12,6 +12,9 @@ import CustomViewsPage from './pages/CustomViewsPage';
 import Sidebar from './components/Sidebar';
 import './styles/App.css';
 
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
@@ -49,6 +52,9 @@ function App() {
         <Sidebar user={user} onLogout={handleLogout} />
         <main className="main-content">
           <Routes>
+        <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
+        <Route path="/codex/operations" element={<CodexOperationsFeature />} />
+
             <Route path="/" element={<Dashboard />} />
             <Route path="/fleet-tracking" element={<FleetTracking />} />
             <Route path="/mission-logs" element={<MissionLogs />} />
