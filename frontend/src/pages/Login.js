@@ -7,12 +7,6 @@ function Login({ onLogin }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const fillCredentials = () => {
-    setEmail('admin@droneops.com');
-    setPassword('admin123');
-    setError('');
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -38,10 +32,6 @@ function Login({ onLogin }) {
         </div>
 
         {error && <div className="error-msg"><i className="fas fa-exclamation-circle"></i> {error}</div>}
-
-        <button className="btn-fill-credentials" onClick={fillCredentials}>
-          <i className="fas fa-magic"></i> Auto-Fill Demo Credentials
-        </button>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">

@@ -90,21 +90,21 @@ app.put('/api/flight-plans/:id', flightPlanValidation, (req, res, next) => {
 
 // ── CRUD routes with AI services ──────────────────────────────────────────
 app.use('/api/drones', createCrudRouter('Drone', null));
-app.use('/api/flight-plans', createCrudRouter('FlightPlan', aiServices.analyzeFlightPlan));
-app.use('/api/missions', createCrudRouter('Mission', aiServices.missionPlanning));
-app.use('/api/inspections', createCrudRouter('Inspection', aiServices.analyzeInspection));
-app.use('/api/deliveries', createCrudRouter('Delivery', aiServices.deliveryOptimization));
-app.use('/api/agriculture', createCrudRouter('AgricultureOp', aiServices.agricultureAnalysis));
-app.use('/api/surveillance', createCrudRouter('Surveillance', aiServices.surveillanceAnalysis));
-app.use('/api/maintenance', createCrudRouter('Maintenance', aiServices.maintenancePrediction));
-app.use('/api/weather', createCrudRouter('WeatherReport', aiServices.weatherAssessment));
-app.use('/api/routes', createCrudRouter('Route', aiServices.optimizeRoute));
-app.use('/api/anomalies', createCrudRouter('Anomaly', aiServices.analyzeAnomaly));
-app.use('/api/compliance', createCrudRouter('Compliance', aiServices.complianceCheck));
-app.use('/api/clients', createCrudRouter('Client', aiServices.clientRecommendation));
-app.use('/api/invoices', createCrudRouter('Invoice', aiServices.invoiceAnalysis));
-app.use('/api/analytics', createCrudRouter('Analytics', aiServices.analyticsInsights));
-app.use('/api/flight-analysis', createCrudRouter('FlightAnalysis', aiServices.flightPerformanceAnalysis));
+app.use('/api/flight-plans', createCrudRouter('FlightPlan', null));
+app.use('/api/missions', createCrudRouter('Mission', null));
+app.use('/api/inspections', createCrudRouter('Inspection', null));
+app.use('/api/deliveries', createCrudRouter('Delivery', null));
+app.use('/api/agriculture', createCrudRouter('AgricultureOp', null));
+app.use('/api/surveillance', createCrudRouter('Surveillance', null));
+app.use('/api/maintenance', createCrudRouter('Maintenance', null));
+app.use('/api/weather', createCrudRouter('WeatherReport', null));
+app.use('/api/routes', createCrudRouter('Route', null));
+app.use('/api/anomalies', createCrudRouter('Anomaly', null));
+app.use('/api/compliance', createCrudRouter('Compliance', null));
+app.use('/api/clients', createCrudRouter('Client', null));
+app.use('/api/invoices', createCrudRouter('Invoice', null));
+app.use('/api/analytics', createCrudRouter('Analytics', null));
+app.use('/api/flight-analysis', createCrudRouter('FlightAnalysis', null));
 
 // Non-AI CRUD routes
 app.use('/api/pilots', createCrudRouter('Pilot', null));
@@ -138,19 +138,14 @@ app.use('/api/drones/:id', geofenceRouter);
 app.use('/api/mission-logs', missionLogsRouter);
 
 // ── AI SSE stream ─────────────────────────────────────────────────────────
-app.use('/api/ai', aiStreamRouter);
-
-// ── Autonomous AI features (mission planning, obstacle avoidance, swarm, etc.)
-app.use('/api/ai', require('./routes/ai'));
-
-// ── Apply pass 5 extensions (vendor link, C2 queue, NOAA, image-analysis, SLAM)
-app.use('/api/ai', require('./routes/extensions'));
+// Generic AI/C2 routes are not mounted; governed missions are deterministic and approval-gated.
 
 // ── AI Results history ────────────────────────────────────────────────────
 app.use('/api/ai-results', aiResultsRouter);
 
 // ── Operational alerts ────────────────────────────────────────────────────
 app.use('/api/alerts', alertsRouter);
+app.use('/api/governed-missions', require('./routes/governedMissions'));
 
 // ── Dashboard stats ───────────────────────────────────────────────────────
 app.get('/api/dashboard/stats', authMiddleware, async (req, res) => {
@@ -198,7 +193,7 @@ io.on('connection', (socket) => {
 setIo(io);
 
 // ── Start ──────────────────────────────────────────────────────────────────
-sequelize.sync({ alter: true }).then(() => {
+sequelize.authenticate().then(() => {
   server.listen(PORT, () => {
     console.log(`Drone Operations Backend running on port ${PORT}`);
   });
@@ -214,18 +209,7 @@ app.use('/api/swarm-choreography', require('./routes/swarmChoreography'));
 app.use('/api/weather-planning', require('./routes/weatherPlanning'));
 app.use('/api/drone-platform-bridge', require('./routes/dronePlatformBridge'));
 
-// === Batch 00 Gaps & Frontend Mounts ===
-app.use('/api/gap-ai-mission-planning-generator-objectives', require('./routes/gap_ai_mission_planning_generator_objectives'));
-app.use('/api/gap-ai-real-time-obstacle-avoidance', require('./routes/gap_ai_real_time_obstacle_avoidance'));
-app.use('/api/gap-ai-multi-drone-swarm-coordination', require('./routes/gap_ai_multi_drone_swarm_coordination'));
-app.use('/api/gap-ai-geofence-optimization-learning', require('./routes/gap_ai_geofence_optimization_learning'));
-app.use('/api/gap-ai-flight-telemetry-anomaly-detection', require('./routes/gap_ai_flight_telemetry_anomaly_detection'));
-app.use('/api/gap-live-drone-platform-integration-dji', require('./routes/gap_live_drone_platform_integration_dji'));
-app.use('/api/gap-real-time-c2-command-control', require('./routes/gap_real_time_c2_command_control'));
-app.use('/api/gap-weather-integration-wind-rain-forecasts', require('./routes/gap_weather_integration_wind_rain_forecasts'));
-app.use('/api/gap-captured-imagery-analysis-pipeline', require('./routes/gap_captured_imagery_analysis_pipeline'));
-app.use('/api/gap-notifications-subsystem', require('./routes/gap_notifications_subsystem'));
-app.use('/api/gap-outbound-webhooks', require('./routes/gap_outbound_webhooks'));
+// Generated gap routes remain in source for audit history but are deliberately not mounted.
 
 // === Custom Views (4 synthesizing endpoints) ===
 app.use('/api/custom-views', require('./routes/customViews'));

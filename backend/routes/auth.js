@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const { User } = require('../models');
+const authenticateToken = require('../middleware/auth');
 require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -69,6 +70,10 @@ router.post('/register', registerValidation, async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+router.get('/me', authenticateToken, (req, res) => {
+  res.json({ user: req.user });
 });
 
 module.exports = router;
