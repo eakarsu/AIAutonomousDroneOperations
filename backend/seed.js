@@ -7,13 +7,19 @@ const {
   Anomaly, Compliance, Client, Invoice, Analytics, FlightAnalysis
 } = require('./models');
 
+function requireDemoPassword() {
+  const password = process.env.DEMO_PASSWORD || process.env.SEED_DEMO_PASSWORD || process.env.DEMO_SEED_PASSWORD || '';
+  if (password.length < 12 || password.length > 1024) throw new Error('DEMO_PASSWORD must contain 12-1024 characters');
+  return password;
+}
+
 async function seed() {
   try {
     await sequelize.sync({ force: true });
     console.log('Database synced.');
 
     // Users
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const hashedPassword = await bcrypt.hash(requireDemoPassword(), 10);
     await User.bulkCreate([
       { email: 'admin@droneops.com', password: hashedPassword, name: 'Admin User', role: 'admin' },
       { email: 'operator@droneops.com', password: hashedPassword, name: 'John Operator', role: 'operator' },
