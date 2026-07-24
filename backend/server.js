@@ -46,6 +46,7 @@ app.use('/api', generalLimiter);
 
 // ── Auth routes (public) ──────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
+app.use('/api/runtime-ai', require('./routes/runtimeAi'));
 
 // ── Health check (public - no sensitive data) ─────────────────────────────
 app.get('/api/health', (req, res) => {
