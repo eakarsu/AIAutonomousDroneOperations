@@ -194,6 +194,14 @@ io.on('connection', (socket) => {
 setIo(io);
 
 // ── Start ──────────────────────────────────────────────────────────────────
+
+// Advisory AI reports only; native execution and approval routes stay unchanged.
+const aiWorkspaceSupport = require("./aiWorkspaceAdapters.cjs");
+const aiWorkspaceDatabase = aiWorkspaceSupport.sequelizeQueryClient(require("./config/database.js"));
+app.use('/api/report-workspace', require("./aiWorkspace.cjs").createAIWorkspaceRouter({
+  pool: aiWorkspaceDatabase, authenticateToken: require("./middleware/auth.js"),
+  aiRateLimiter: aiWorkspaceSupport.createWorkspaceLimiter(), features: require("./aiWorkspaceFeatures.json"),
+}));
 sequelize.authenticate().then(() => {
   server.listen(PORT, () => {
     console.log(`Drone Operations Backend running on port ${PORT}`);

@@ -135,11 +135,11 @@ export const aiStream = {
 
 // ── Autonomous flight AI features ─────────────────────────────────────────
 export const aiAutonomyService = {
-  missionPlanner: (data) => api.post('/ai/mission-planner', data),
-  obstacleAvoidance: (data) => api.post('/ai/obstacle-avoidance', data),
-  swarmCoordination: (data) => api.post('/ai/swarm-coordination', data),
-  geofenceOptimize: (data) => api.post('/ai/geofence-optimize', data),
-  telemetryAnomaly: (data) => api.post('/ai/telemetry-anomaly', data),
+  missionPlanner: (data, nativeRequestOptions = {}) => api.post('/ai/mission-planner', data, nativeRequestOptions),
+  obstacleAvoidance: (data, nativeRequestOptions = {}) => api.post('/ai/obstacle-avoidance', data, nativeRequestOptions),
+  swarmCoordination: (data, nativeRequestOptions = {}) => api.post('/ai/swarm-coordination', data, nativeRequestOptions),
+  geofenceOptimize: (data, nativeRequestOptions = {}) => api.post('/ai/geofence-optimize', data, nativeRequestOptions),
+  telemetryAnomaly: (data, nativeRequestOptions = {}) => api.post('/ai/telemetry-anomaly', data, nativeRequestOptions),
 };
 
 export default api;
