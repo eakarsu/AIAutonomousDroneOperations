@@ -1231,7 +1231,7 @@ function FeaturePage({ feature }) {
       {/* Detail Modal */}
       {selectedItem && (
         <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setSelectedItem(null)}>
-          <div className="modal-content">
+          <div className="modal-content modal" role="dialog" aria-modal="true">
             <button className="modal-close" onClick={() => setSelectedItem(null)}>
               <i className="fas fa-times"></i>
             </button>
@@ -1262,6 +1262,9 @@ function FeaturePage({ feature }) {
               </button>
               <button className="btn-delete" onClick={() => handleDelete(selectedItem.id)}>
                 <i className="fas fa-trash"></i> Delete
+              </button>
+              <button className="btn-cancel" onClick={() => setSelectedItem(null)}>
+                Cancel
               </button>
               {config.hasAI && (
                 <button className="btn-ai" onClick={() => handleAIAnalysis(selectedItem)} disabled={aiLoading}>

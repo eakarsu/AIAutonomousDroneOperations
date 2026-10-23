@@ -147,6 +147,8 @@ app.use('/api/ai-results', aiResultsRouter);
 // ── Operational alerts ────────────────────────────────────────────────────
 app.use('/api/alerts', alertsRouter);
 app.use('/api/governed-missions', require('./routes/governedMissions'));
+app.use('/api/tasks', require('./middleware/auth'), require('./routes/tasks26c').createTasksRouter({}));
+app.use('/api/feature-ai', require('./middleware/auth'), require('./routes/featureAi26c').createFeatureAiRouter({ loadRecords: async (req) => { const { sequelize } = require('./models'); const { QueryTypes } = require('sequelize'); const tenantFor=u=>u.tenantId||`user:${u.id}`; return sequelize.query('SELECT * FROM governed_missions WHERE tenant_id=:tenant ORDER BY created_at DESC LIMIT 100', { replacements: { tenant: tenantFor(req.user) }, type: QueryTypes.SELECT }); } }));
 
 // ── Dashboard stats ───────────────────────────────────────────────────────
 app.get('/api/dashboard/stats', authMiddleware, async (req, res) => {

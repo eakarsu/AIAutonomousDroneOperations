@@ -4,6 +4,7 @@ const { QueryTypes } = require('sequelize');
 const { sequelize } = require('../models');
 const auth = require('../middleware/auth');
 const { validateMission, assertTransition, assessTelemetry } = require('../domain/missionPolicy');
+const { filterRecords, sendExport } = require('../lib/featurePack26c');
 
 const router = express.Router();
 router.use(auth);
@@ -15,6 +16,8 @@ async function audit(tenantId, missionId, actorId, action, detail = {}) {
     { replacements: { id: crypto.randomUUID(), tenant: tenantId, mission: missionId, actor: String(actorId), action, detail: JSON.stringify(detail) } });
 }
 
+router.get('/export', async (req, res) => { try { const rows = await sequelize.query('SELECT * FROM governed_missions WHERE tenant_id=:tenant ORDER BY created_at DESC', { replacements: { tenant: tenantFor(req.user) }, type: QueryTypes.SELECT }); return sendExport(req, res, rows); } catch { return res.status(500).json({ error: 'Unable to export missions' }); } });
+router.get('/', async (req, res) => { try { const rows = await sequelize.query('SELECT * FROM governed_missions WHERE tenant_id=:tenant ORDER BY created_at DESC', { replacements: { tenant: tenantFor(req.user) }, type: QueryTypes.SELECT }); return res.json(filterRecords(rows, req.query)); } catch { return res.status(500).json({ error: 'Unable to load missions' }); } });
 router.post('/', async (req, res) => {
   try {
     const tenantId = tenantFor(req.user);
